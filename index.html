@@ -32,6 +32,10 @@
        fill: #fff;
      }
 
+     .brow {
+       stroke-width: 3;
+     }
+
      .eye {
        stroke: #000;
      }
@@ -57,8 +61,12 @@
 	      <g id="main">
           <defs>
             <g id="eye">
-		          <circle class="eye" cx="0" cy="75" r="30" />
-		          <circle class="pupil" cx="0" cy="75" r="10" />
+		          <circle class="eye" cx="0" cy="85" r="30" />
+              <!-- pupils juuuust a bit lower than eye -->
+		          <circle class="pupil" cx="0" cy="90" r="10" />
+
+              <!-- flatten brown as grumpiness increases -->
+              <path class="brow" d="M-30,45 C-30,30 30,30 30,45" />
             </g>
           </defs>
 
@@ -67,7 +75,6 @@
             <use xlink:href="#eye" id="right-eye" x="380" y="0" />            
           </g>
 
-          
 		      <path id="nose" d="M220,150 C210,190 290,190, 280,150 " />
 
           <circle id="p1" cx="70" cy="340" r="16" />
@@ -111,6 +118,8 @@
 	   // define initial points
 	   function Init() {
 
+       // initial points are drawn as circles right now. we
+       // can display them to debug/etc which is handy       
 		   var c = svg.getElementsByTagName("circle");
 		   for (var i = 0; i < c.length; i++) {
 			   base[c[i].getAttributeNS(null,"id")] = {
