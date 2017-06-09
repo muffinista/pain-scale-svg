@@ -17,7 +17,7 @@
      }
 
      path {
-       stroke-width: 8;
+       stroke-width: 6;
        stroke: #1E1935;
        stroke-linecap: round;
        fill: none;
@@ -29,7 +29,6 @@
      
      circle {
        stroke-width: 2;
-       stroke: #EF2D56;
        fill: #fff;
      }
 
@@ -49,8 +48,6 @@
   </head>
 
   <body>
-    <!-- <pre id="code">code</pre>-->
-
     <div id="container" type="image/svg+xml"  class="C">
       <svg id="svg"
            xmlns="http://www.w3.org/2000/svg"
@@ -66,11 +63,11 @@
 		      <path id="nose" d="M220,150 C210,190 290,190, 280,150 " />
 
 
-          <circle id="p1" cx="80" cy="350" r="16" />
-		      <circle id="p2" cx="420" cy="350" r="16" />
+          <circle id="p1" cx="80" cy="330" r="16" />
+		      <circle id="p2" cx="420" cy="330" r="16" />
 		      
-		      <circle id="c1" cx="80" cy="200" r="8" />
-		      <circle id="c2" cx="420" cy="200" r="8" />
+		      <circle id="c1" cx="80" cy="180" r="8" />
+		      <circle id="c2" cx="420" cy="180" r="8" />
 
 		      <path id="curve" d="M100,350 C100,100 400,100 400,350" />
 	      </g>
@@ -94,8 +91,7 @@
 
    (function() {
 
-	   var container, svg, cType, code, point = {}, line = {}, fill = false, drag = null, dPoint, maxX, maxY;
-
+	   var container, svg, cType, point = {}, line = {};
 
      var level = 12;
      var maxLevel = 12;
@@ -113,59 +109,45 @@
 				   y: parseInt(c[i].getAttributeNS(null,"cy"),10)
 			   };
        }
-
-       console.log(base);
 		   
 		   // lines
 		   line.curve = svg.getElementById("curve");
-		   
-		   // code
-		   code = document.getElementById("code");
-	     
-		   DrawSVG();
+		   	     
+		   DrawSVG(level);
 	   }
 	   
 
      var controlDiff = 25;
      
 	   // draw curve
-	   function DrawSVG() {
-       console.log(level);
+	   function DrawSVG(l) {
+       console.log(l);
 
        point.p1 = base.p1;
        point.p2 = base.p2;
 
        point.c1 = {};
        point.c1.x = base.c1.x;
-       point.c1.y = base.c1.y + level * controlDiff;
+       point.c1.y = base.c1.y + l * controlDiff;
 
        point.c2 = {};
        point.c2.x = base.c2.x;
-       point.c2.y = base.c2.y + level * controlDiff;
+       point.c2.y = base.c2.y + l * controlDiff;
        
 		   // curve
-		   var d = 
-			 "M"+point.p1.x+","+point.p1.y+" "+cType+
-			 point.c1.x+","+point.c1.y+" "+
-			 (point.c2 ? point.c2.x+","+point.c2.y+" " : "")+
-			 point.p2.x+","+point.p2.y+
-			 (fill ? " Z" : "");
+		   var d = "M" + point.p1.x + "," + point.p1.y + " "
+              + cType + point.c1.x + "," + point.c1.y + " " +
+			        (point.c2 ? point.c2.x+","+point.c2.y+" " : "") +
+			         point.p2.x+","+point.p2.y;
 
 		   line.curve.setAttributeNS(null, "d", d);
-		   
-		   // show code
-		   if (code) {
-			   code.textContent = '<path d="'+d+'" />';
-		   }
-	   }
+		 }
 
 	   // start
 	   document.addEventListener('DOMContentLoaded', function() {
 		   container = document.getElementById("container");
 		   if (container) {
 			   cType = container.className;
-			   maxX = container.offsetWidth-1;
-			   maxY = container.offsetHeight-1;
 			   svg = document.getElementById("svg");
 			   Init();
 		   }
@@ -180,7 +162,7 @@
          level = maxLevel;
        }
 
-       DrawSVG();
+       DrawSVG(level);
      });
      
    })();
