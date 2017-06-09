@@ -42,34 +42,41 @@
      }
      
      #p1, #p2, #c1, #c2 {
+       //stroke: red;
        display: none;
      }
     </style>
   </head>
 
   <body>
-    <div id="container" type="image/svg+xml"  class="C">
+    <div id="container" type="image/svg+xml">
       <svg id="svg"
            xmlns="http://www.w3.org/2000/svg"
            viewBox="0 0 499 499"
            width="500" height="500" preserveAspectRatio="xMidYMid meet">
 	      <g id="main">
-		      <circle id="eye1" class="eye" cx="100" cy="50" r="30" />
-		      <circle id="eye2" class="eye" cx="400" cy="50" r="30" />
+          <defs>
+            <g id="eye">
+		          <circle class="eye" cx="0" cy="75" r="30" />
+		          <circle class="pupil" cx="0" cy="75" r="10" />
+            </g>
+          </defs>
 
-		      <circle id="pupil1" class="pupil" cx="100" cy="50" r="10" />
-		      <circle id="pupil2" class="pupil "cx="400" cy="50" r="10" />
+          <g id="eyes">
+            <use xlink:href="#eye" id="left-eye" x="120" y="0" />
+            <use xlink:href="#eye" id="right-eye" x="380" y="0" />            
+          </g>
+
           
 		      <path id="nose" d="M220,150 C210,190 290,190, 280,150 " />
 
-
-          <circle id="p1" cx="80" cy="330" r="16" />
-		      <circle id="p2" cx="420" cy="330" r="16" />
+          <circle id="p1" cx="70" cy="340" r="16" />
+		      <circle id="p2" cx="430" cy="340" r="16" />
 		      
-		      <circle id="c1" cx="80" cy="180" r="8" />
-		      <circle id="c2" cx="420" cy="180" r="8" />
+		      <circle id="c1" cx="80" cy="190" r="8" />
+		      <circle id="c2" cx="420" cy="190" r="8" />
 
-		      <path id="curve" d="M100,350 C100,100 400,100 400,350" />
+		      <path id="smile" />
 	      </g>
       </svg>
     </div>
@@ -91,13 +98,15 @@
 
    (function() {
 
-	   var container, svg, cType, point = {}, line = {};
+	   var container, svg, cType, point = {}, smile;
 
      var level = 12;
      var maxLevel = 12;
      var dir = -1;
      
      var base = {};
+
+     cType = "C";
      
 	   // define initial points
 	   function Init() {
@@ -110,21 +119,34 @@
 			   };
        }
 		   
-		   // lines
-		   line.curve = svg.getElementById("curve");
+		   smile = svg.getElementById("smile");
 		   	     
 		   DrawSVG(level);
 	   }
 	   
 
-     var controlDiff = 25;
-     
-	   // draw curve
+     var controlDiff = 24;
+     var pointDiff = 0;
+     var movePoints = true;
+
+     if ( movePoints === true ) {
+       controlDiff = controlDiff / 2;
+       pointDiff = controlDiff;
+     }
+
+	   // draw smile
 	   function DrawSVG(l) {
        console.log(l);
 
-       point.p1 = base.p1;
-       point.p2 = base.p2;
+       // we move the test control points around, then update the
+       // bezier to match
+       point.p1 = {};
+       point.p1.x = base.p1.x;
+       point.p1.y = base.p1.y - l * pointDiff;
+
+       point.p2 = {};
+       point.p2.x = base.p2.x;
+       point.p2.y = base.p2.y - l * pointDiff;
 
        point.c1 = {};
        point.c1.x = base.c1.x;
@@ -134,23 +156,20 @@
        point.c2.x = base.c2.x;
        point.c2.y = base.c2.y + l * controlDiff;
        
-		   // curve
+		   // smile
 		   var d = "M" + point.p1.x + "," + point.p1.y + " "
               + cType + point.c1.x + "," + point.c1.y + " " +
 			        (point.c2 ? point.c2.x+","+point.c2.y+" " : "") +
 			         point.p2.x+","+point.p2.y;
 
-		   line.curve.setAttributeNS(null, "d", d);
+		   smile.setAttributeNS(null, "d", d);
 		 }
 
 	   // start
 	   document.addEventListener('DOMContentLoaded', function() {
 		   container = document.getElementById("container");
-		   if (container) {
-			   cType = container.className;
-			   svg = document.getElementById("svg");
-			   Init();
-		   }
+			 svg = document.getElementById("svg");
+			 Init();
 	   });
 
      document.addEventListener('keypress', function(e) {
