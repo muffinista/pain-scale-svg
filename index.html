@@ -1,0 +1,229 @@
+<html>
+  <head>
+    <!-- - https://codepen.io/explosion/pen/YGApwd -->
+    <style>
+     * {
+       box-sizing: border-box;
+       padding: 0;
+       margin: 0;
+     }
+
+     #container {
+       width: 100%;
+       height: 500px;
+       background: #fff;
+       margin: 0 auto;
+       text-align: center;
+     }
+
+     #code {
+       display: block;
+       width: auto;
+       font: bold 3vw monospace;
+       padding: 50px 0 4vw 10vw;
+       margin: 0;
+       color: #1E1935;
+       background: rgba(221, 221, 221, 0.35);
+     }
+     #code::-moz-selection {
+       background: #EF2D56;
+       color: #fff;
+     }
+     #code::selection {
+       background: #EF2D56;
+       color: #fff;
+     }
+
+     path {
+       stroke-width: 12;
+       stroke: #1E1935;
+       stroke-linecap: round;
+       fill: none;
+     }
+
+     path.fill {
+       fill: #1E1935;
+     }
+
+     #nose {
+       stroke-width: 4;
+     }
+     
+     circle {
+       stroke-width: 2;
+       stroke: #EF2D56;
+       fill: #fff;
+     }
+
+     circle:hover {
+       fill: #EF2D56;
+       cursor: move;
+     }
+
+     .eye {
+       stroke: #000;
+     }
+     
+     .pupil {
+       fill: #000;
+       stroke: #000;
+     }
+     
+     line {
+       stroke-width: 1;
+       stroke: #999;
+       stroke-linecap: round;
+       stroke-dasharray: 5, 3;
+     }
+
+
+     a {
+       color: inherit;
+     }
+
+     #p1, #p2, #c1, #c2 {
+       display: none;
+     }
+    </style>
+  </head>
+
+  <body>
+    <!-- <pre id="code">code</pre>-->
+
+    <div id="container" type="image/svg+xml"  class="C">
+      <svg id="svg"
+           xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 499 499"
+           width="500" height="500" preserveAspectRatio="xMidYMid meet">
+	      <g id="main">
+		      <circle id="eye1" class="eye" cx="100" cy="150" r="30" />
+		      <circle id="eye2" class="eye" cx="400" cy="150" r="30" />
+
+		      <circle id="pupil1" class="pupil" cx="100" cy="150" r="10" />
+		      <circle id="pupil2" class="pupil "cx="400" cy="150" r="10" />
+          
+		      <circle id="p1" cx="100" cy="350" r="16" />
+		      <circle id="p2" cx="400" cy="350" r="16" />
+		      
+		      <circle id="c1" cx="100" cy="200" r="8" />
+		      <circle id="c2" cx="400" cy="200" r="8" />
+
+		      <path id="nose" d="M220,200 C210,240 290,240, 280,200 " />
+		      <path id="curve" d="M100,350 C100,100 400,100 400,350" />
+	      </g>
+      </svg>
+    </div>
+  </body>
+  <script>
+   /* 
+    * SVG curve example
+    *
+    * By Craig Buckler,		https://twitter.com/craigbuckler
+    * of OptimalWorks.net		http://optimalworks.net/
+    * for SitePoint.com		http://sitepoint.com/
+    * 
+    * Refer to:
+    * http://www.sitepoint.com/html5-svg-quadratic-curves/
+    * http://www.sitepoint.com/html5-svg-cubic-curves/
+    *
+    * This code can be used without restrictions.
+    */
+
+   (function() {
+
+	   var container, svg, cType, code, point = {}, line = {}, fill = false, drag = null, dPoint, maxX, maxY;
+
+     var base = {};
+     
+	   // define initial points
+	   function Init() {
+
+		   var c = svg.getElementsByTagName("circle");
+		   for (var i = 0; i < c.length; i++) {
+			   base[c[i].getAttributeNS(null,"id")] = {
+				   x: parseInt(c[i].getAttributeNS(null,"cx"),10),
+				   y: parseInt(c[i].getAttributeNS(null,"cy"),10)
+			   };
+       }
+
+       console.log(base);
+		   
+		   // lines
+		   line.curve = svg.getElementById("curve");
+		   
+		   // code
+		   code = document.getElementById("code");
+	     
+		   DrawSVG();
+	   }
+	   
+
+     var controlDiff = 25;
+     
+	   // draw curve
+	   function DrawSVG() {
+
+       point.p1 = base.p1;
+       point.p2 = base.p2;
+
+       point.c1 = {};
+       point.c1.x = base.c1.x;
+       point.c1.y = base.c1.y + level * controlDiff;
+
+       point.c2 = {};
+       point.c2.x = base.c2.x;
+       point.c2.y = base.c2.y + level * controlDiff;
+       
+		   // curve
+		   var d = 
+			 "M"+point.p1.x+","+point.p1.y+" "+cType+
+			 point.c1.x+","+point.c1.y+" "+
+			 (point.c2 ? point.c2.x+","+point.c2.y+" " : "")+
+			 point.p2.x+","+point.p2.y+
+			 (fill ? " Z" : "");
+
+		   line.curve.setAttributeNS(null, "d", d);
+		   
+		   // show code
+		   if (code) {
+			   code.textContent = '<path d="'+d+'" />';
+		   }
+	   }
+
+     var level = 0;
+	   
+	   // mouse position
+	   function MousePos(event) {
+		   return {
+			   x: Math.max(0, Math.min(maxX, event.pageX)),
+			   y: Math.max(0, Math.min(maxY, event.pageY))
+		   }
+	   }
+	   
+	   
+	   // start
+	   document.addEventListener('DOMContentLoaded', function() {
+		   container = document.getElementById("container");
+		   if (container) {
+			   cType = container.className;
+			   maxX = container.offsetWidth-1;
+			   maxY = container.offsetHeight-1;
+			   svg = document.getElementById("svg");
+			   Init();
+		   }
+	   });
+
+     var maxLevel = 12;
+     document.addEventListener('keypress', function(e) {
+       level = level + 1;
+       if ( level > 12 ) {
+         level = 0;
+       }
+       console.log(level);
+
+       DrawSVG();
+     });
+     
+   })();
+  </script>
+</html>
