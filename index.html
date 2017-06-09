@@ -26,7 +26,7 @@
      #nose {
        stroke-width: 4;
      }
-     
+
      circle {
        stroke-width: 2;
        fill: #fff;
@@ -39,12 +39,12 @@
      .eye {
        stroke: #000;
      }
-     
+
      .pupil {
        fill: #000;
        stroke: #000;
      }
-     
+
      #p1, #p2, #c1, #c2 {
        //stroke: red;
        display: none;
@@ -72,14 +72,14 @@
 
           <g id="eyes">
             <use xlink:href="#eye" id="left-eye" x="120" y="0" />
-            <use xlink:href="#eye" id="right-eye" x="380" y="0" />            
+            <use xlink:href="#eye" id="right-eye" x="380" y="0" />
           </g>
 
 		      <path id="nose" d="M220,150 C210,190 290,190, 280,150 " />
 
           <circle id="p1" cx="70" cy="340" r="16" />
 		      <circle id="p2" cx="430" cy="340" r="16" />
-		      
+
 		      <circle id="c1" cx="80" cy="190" r="8" />
 		      <circle id="c2" cx="420" cy="190" r="8" />
 
@@ -89,13 +89,13 @@
     </div>
   </body>
   <script>
-   /* 
+   /*
     * SVG curve example
     *
     * By Craig Buckler,		https://twitter.com/craigbuckler
     * of OptimalWorks.net		http://optimalworks.net/
     * for SitePoint.com		http://sitepoint.com/
-    * 
+    *
     * Refer to:
     * http://www.sitepoint.com/html5-svg-quadratic-curves/
     * http://www.sitepoint.com/html5-svg-cubic-curves/
@@ -103,96 +103,91 @@
     * This code can be used without restrictions.
     */
 
-   (function() {
+	 var container, svg, cType, point = {}, smile;
 
-	   var container, svg, cType, point = {}, smile;
+   var level = 12;
+   var maxLevel = 12;
+   var dir = -1;
 
-     var level = 12;
-     var maxLevel = 12;
-     var dir = -1;
-     
-     var base = {};
+   var base = {};
+   var controlDiff = 24;
+   var pointDiff = 0;
+   var movePoints = true;
 
-     cType = "C";
-     
-	   // define initial points
-	   function Init() {
+   if ( movePoints === true ) {
+     controlDiff = controlDiff / 2;
+     pointDiff = controlDiff;
+   }
 
-       // initial points are drawn as circles right now. we
-       // can display them to debug/etc which is handy       
-		   var c = svg.getElementsByTagName("circle");
-		   for (var i = 0; i < c.length; i++) {
-			   base[c[i].getAttributeNS(null,"id")] = {
-				   x: parseInt(c[i].getAttributeNS(null,"cx"),10),
-				   y: parseInt(c[i].getAttributeNS(null,"cy"),10)
-			   };
-       }
-		   
-		   smile = svg.getElementById("smile");
-		   	     
-		   DrawSVG(level);
-	   }
-	   
+   cType = "C";
 
-     var controlDiff = 24;
-     var pointDiff = 0;
-     var movePoints = true;
+	 // define initial points
+	 function init() {
 
-     if ( movePoints === true ) {
-       controlDiff = controlDiff / 2;
-       pointDiff = controlDiff;
+     // initial points are drawn as circles right now. we
+     // can display them to debug/etc which is handy
+		 var c = svg.getElementsByTagName("circle");
+		 for (var i = 0; i < c.length; i++) {
+			 base[c[i].getAttributeNS(null,"id")] = {
+				 x: parseInt(c[i].getAttributeNS(null,"cx"),10),
+				 y: parseInt(c[i].getAttributeNS(null,"cy"),10)
+			 };
      }
 
-	   // draw smile
-	   function DrawSVG(l) {
-       console.log(l);
+		 smile = svg.getElementById("smile");
 
-       // we move the test control points around, then update the
-       // bezier to match
-       point.p1 = {};
-       point.p1.x = base.p1.x;
-       point.p1.y = base.p1.y - l * pointDiff;
+		 draw(level);
+	 }
 
-       point.p2 = {};
-       point.p2.x = base.p2.x;
-       point.p2.y = base.p2.y - l * pointDiff;
 
-       point.c1 = {};
-       point.c1.x = base.c1.x;
-       point.c1.y = base.c1.y + l * controlDiff;
+	 // draw smile
+	 function draw(l) {
+     console.log(l);
 
-       point.c2 = {};
-       point.c2.x = base.c2.x;
-       point.c2.y = base.c2.y + l * controlDiff;
-       
-		   // smile
-		   var d = "M" + point.p1.x + "," + point.p1.y + " "
-              + cType + point.c1.x + "," + point.c1.y + " " +
-			        (point.c2 ? point.c2.x+","+point.c2.y+" " : "") +
-			         point.p2.x+","+point.p2.y;
+     // we move the test control points around, then update the
+     // bezier to match
+     point.p1 = {};
+     point.p1.x = base.p1.x;
+     point.p1.y = base.p1.y - l * pointDiff;
 
-		   smile.setAttributeNS(null, "d", d);
-		 }
+     point.p2 = {};
+     point.p2.x = base.p2.x;
+     point.p2.y = base.p2.y - l * pointDiff;
 
-	   // start
-	   document.addEventListener('DOMContentLoaded', function() {
-		   container = document.getElementById("container");
-			 svg = document.getElementById("svg");
-			 Init();
-	   });
+     point.c1 = {};
+     point.c1.x = base.c1.x;
+     point.c1.y = base.c1.y + l * controlDiff;
 
-     document.addEventListener('keypress', function(e) {
-       level = level + dir;
-       if ( level > maxLevel ) {
-         level = 0;
-       }
-       else if ( level < 0 ) {
-         level = maxLevel;
-       }
+     point.c2 = {};
+     point.c2.x = base.c2.x;
+     point.c2.y = base.c2.y + l * controlDiff;
 
-       DrawSVG(level);
-     });
-     
-   })();
+		 // smile
+		 var d = "M" + point.p1.x + "," + point.p1.y + " "
+           + cType + point.c1.x + "," + point.c1.y + " " +
+			         (point.c2 ? point.c2.x+","+point.c2.y+" " : "") +
+			       point.p2.x+","+point.p2.y;
+
+		 smile.setAttributeNS(null, "d", d);
+	 }
+
+	 // start
+	 document.addEventListener('DOMContentLoaded', function() {
+		 container = document.getElementById("container");
+		 svg = document.getElementById("svg");
+		 init();
+	 });
+
+   document.addEventListener('keypress', function(e) {
+     level = level + dir;
+     if ( level > maxLevel ) {
+       level = 0;
+     }
+     else if ( level < 0 ) {
+       level = maxLevel;
+     }
+
+     draw(level);
+   });
   </script>
 </html>
