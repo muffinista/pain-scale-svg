@@ -65,8 +65,8 @@
               <!-- pupils juuuust a bit lower than eye -->
 		          <circle class="pupil" cx="0" cy="90" r="10" />
 
-              <!-- flatten brown as grumpiness increases -->
-              <path class="brow" d="M-30,45 C-30,30 30,30 30,45" />
+              <!-- flatten brow as grumpiness increases -->
+              <path class="brow" id="brow" d="M-30,45 C-30,30 30,30 30,45" />
             </g>
           </defs>
 
@@ -103,8 +103,15 @@
     * This code can be used without restrictions.
     */
 
-	 var container, svg, cType, point = {}, smile;
+	 var container, svg, cType, point = {}, smile, brow;
 
+   var browPoints = {
+     p1: { x: -30, y:25 },
+     p2: { x: 30, y: 25 },
+     c1: { x: -30, y: 45 },
+     c2: { x: 30, y: 45 }
+   };
+   
    var level = 12;
    var maxLevel = 12;
    var dir = -1;
@@ -112,11 +119,18 @@
    var base = {};
    var controlDiff = 24;
    var pointDiff = 0;
+
+   var browControlDiff = -3;
+   var browPointDiff = 0;
+
    var movePoints = true;
 
    if ( movePoints === true ) {
      controlDiff = controlDiff / 2;
      pointDiff = controlDiff;
+
+     browControlDiff = browControlDiff / 2;
+     browPointDiff = browControlDiff;
    }
 
    cType = "C";
@@ -135,7 +149,8 @@
      }
 
 		 smile = svg.getElementById("smile");
-
+		 brow = svg.getElementById("brow");
+     
 		 draw(level);
 	 }
 
@@ -163,13 +178,35 @@
      point.c2.y = base.c2.y + l * controlDiff;
 
 		 // smile
-		 var d = "M" + point.p1.x + "," + point.p1.y + " "
-           + cType + point.c1.x + "," + point.c1.y + " " +
-			         (point.c2 ? point.c2.x+","+point.c2.y+" " : "") +
-			       point.p2.x+","+point.p2.y;
-
+		 var d = "M" + point.p1.x + "," + point.p1.y + " " +
+             cType +
+             point.c1.x + "," + point.c1.y + " " +
+             point.c2.x + "," + point.c2.y+" " +
+			       point.p2.x + "," + point.p2.y;
+     
 		 smile.setAttributeNS(null, "d", d);
-	 }
+
+     // brow
+     point = {
+       p1: { x: browPoints.p1.x, y: browPoints.p1.y - l * browPointDiff },
+       p2: { x: browPoints.p2.x, y: browPoints.p2.y - l * browPointDiff },       
+       c1: { x: browPoints.c1.x, y: browPoints.c1.y + l * browControlDiff },
+       c2: { x: browPoints.c2.x, y: browPoints.c2.y + l * browControlDiff }
+     };
+
+     console.log(point);
+     
+     d = "M" + point.p1.x + "," + point.p1.y + " " +
+         cType +
+         point.c1.x + "," + point.c1.y + " " +
+         point.c2.x + "," + point.c2.y+" " +
+			   point.p2.x + "," + point.p2.y;
+     
+     console.log(d);
+     brow.setAttributeNS(null, "d", d);
+
+     //<path class="brow" d="M-30,45 C-30,30 30,30 30,45" />
+   }
 
 	 // start
 	 document.addEventListener('DOMContentLoaded', function() {
