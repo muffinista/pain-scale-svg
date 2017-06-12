@@ -49,6 +49,11 @@
        //stroke: red;
        display: none;
      }
+
+     #face {
+       fill: green;
+       stroke: #000;
+     }
     </style>
   </head>
 
@@ -70,18 +75,20 @@
             </g>
           </defs>
 
+          <circle id="face" cx="250" cy="250" r="240" />
+          
           <g id="eyes">
-            <use xlink:href="#eye" id="left-eye" x="120" y="0" />
-            <use xlink:href="#eye" id="right-eye" x="380" y="0" />
+            <use xlink:href="#eye" id="left-eye" x="120" y="75" />
+            <use xlink:href="#eye" id="right-eye" x="380" y="75" />
           </g>
 
-		      <path id="nose" d="M220,150 C210,190 290,190, 280,150 " />
+		      <path id="nose" d="M220,190 C210,230 290,230, 280,190 " />
 
-          <circle id="p1" cx="70" cy="340" r="16" />
-		      <circle id="p2" cx="430" cy="340" r="16" />
+          <circle id="p1" cx="70" cy="395" r="16" />
+		      <circle id="p2" cx="430" cy="395" r="16" />
 
-		      <circle id="c1" cx="80" cy="190" r="8" />
-		      <circle id="c2" cx="420" cy="190" r="8" />
+		      <circle id="c1" cx="80" cy="245" r="8" />
+		      <circle id="c2" cx="420" cy="245" r="8" />
 
 		      <path id="smile" />
 	      </g>
