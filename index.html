@@ -11,7 +11,6 @@
      #container {
        width: 100%;
        height: 500px;
-       background: #fff;
        margin: 0 auto;
        text-align: center;
      }
@@ -45,11 +44,6 @@
        stroke: #000;
      }
 
-     #p1, #p2, #c1, #c2 {
-       //stroke: red;
-       display: none;
-     }
-
      #face {
        fill: green;
        stroke: #000;
@@ -71,7 +65,7 @@
 		          <circle class="pupil" cx="0" cy="90" r="10" />
 
               <!-- flatten brow as grumpiness increases -->
-              <path class="brow" id="brow" d="M-30,45 C-30,30 30,30 30,45" />
+              <path class="brow" id="brow" d="M-30,25 C-30,45 30,45 30,25" />
             </g>
           </defs>
 
@@ -82,15 +76,9 @@
             <use xlink:href="#eye" id="right-eye" x="380" y="75" />
           </g>
 
-		      <path id="nose" d="M220,190 C210,230 290,230, 280,190 " />
+		      <path id="nose" d="M220,190 C210,230 290,230, 280,190" />
 
-          <circle id="p1" cx="70" cy="390" r="16" />
-		      <circle id="p2" cx="430" cy="390" r="16" />
-
-		      <circle id="c1" cx="80" cy="280" r="8" />
-		      <circle id="c2" cx="420" cy="280" r="8" />
-
-		      <path id="smile" />
+		      <path id="smile" d="M70,390 C80,280 420,280 430,390"/>
 	      </g>
       </svg>
     </div>
@@ -112,12 +100,7 @@
 
 	 var container, svg, cType, point = {}, smile, brow;
 
-   var browPoints = {
-     p1: { x: -30, y:25 },
-     p2: { x: 30, y: 25 },
-     c1: { x: -30, y: 45 },
-     c2: { x: 30, y: 45 }
-   };
+   var browPoints = {};
    
    var level = 12;
    var maxLevel = 12;
@@ -142,46 +125,64 @@
 
    cType = "C";
 
+   var getCurrentPoints = function(str) {
+     var re = new RegExp('[MC]', 'g');
+     var raw = str.replace(re, '').split(/ /);
+     var point = {};
+     var tmp;
+
+     tmp = raw[0].split(/,/);
+     point.p1 = {};
+     point.p1.x = parseInt(tmp[0], 10);
+     point.p1.y = parseInt(tmp[1], 10);
+
+     tmp = raw[1].split(/,/);
+     point.c1 = {};
+     point.c1.x = parseInt(tmp[0], 10);
+     point.c1.y = parseInt(tmp[1], 10);
+     
+
+     tmp = raw[2].split(/,/);
+     point.c2 = {};
+     point.c2.x = parseInt(tmp[0], 10);
+     point.c2.y = parseInt(tmp[1], 10);
+
+     tmp = raw[3].split(/,/);
+     point.p2 = {};
+     point.p2.x = parseInt(tmp[0], 10);
+     point.p2.y = parseInt(tmp[1], 10);
+
+     return point;
+   };
+   
 	 // define initial points
 	 function init() {
-
-     // initial points are drawn as circles right now. we
-     // can display them to debug/etc which is handy
-		 var c = svg.getElementsByTagName("circle");
-		 for (var i = 0; i < c.length; i++) {
-			 base[c[i].getAttributeNS(null,"id")] = {
-				 x: parseInt(c[i].getAttributeNS(null,"cx"),10),
-				 y: parseInt(c[i].getAttributeNS(null,"cy"),10)
-			 };
-     }
+     var path;
 
 		 smile = svg.getElementById("smile");
 		 brow = svg.getElementById("brow");
+
+     path = smile.getAttributeNS(null, "d");
+     base = getCurrentPoints(path);
+
+     path = brow.getAttributeNS(null, "d");
+     browPoints = getCurrentPoints(path);
      
 		 draw(level);
 	 }
-
 
 	 // draw smile
 	 function draw(l) {
      console.log(l);
 
+     var path = smile.getAttributeNS(null, "d");
+     var point = getCurrentPoints(path);
+
      // we move the test control points around, then update the
      // bezier to match
-     point.p1 = {};
-     point.p1.x = base.p1.x;
      point.p1.y = base.p1.y - l * pointDiff;
-
-     point.p2 = {};
-     point.p2.x = base.p2.x;
      point.p2.y = base.p2.y - l * pointDiff;
-
-     point.c1 = {};
-     point.c1.x = base.c1.x;
      point.c1.y = base.c1.y + l * controlDiff;
-
-     point.c2 = {};
-     point.c2.x = base.c2.x;
      point.c2.y = base.c2.y + l * controlDiff;
 
 		 // smile
@@ -209,7 +210,7 @@
          point.c2.x + "," + point.c2.y+" " +
 			   point.p2.x + "," + point.p2.y;
      
-     console.log(d);
+     //console.log(d);
      brow.setAttributeNS(null, "d", d);
 
      //<path class="brow" d="M-30,45 C-30,30 30,30 30,45" />
