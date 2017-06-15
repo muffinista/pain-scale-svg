@@ -49,8 +49,9 @@
        stroke: #000;
      }
     </style>
+    <script src="./Tween.min.js"></script>
   </head>
-
+  
   <body>
     <div id="container" type="image/svg+xml">
       <svg id="svg"
@@ -62,7 +63,7 @@
             <g id="eye">
 		          <circle class="eye" cx="0" cy="85" r="30" />
               <!-- pupils juuuust a bit lower than eye -->
-		          <circle class="pupil" cx="0" cy="90" r="10" />
+		          <circle class="pupil" id="pupil" cx="0" cy="90" r="10" />
 
               <!-- flatten brow as grumpiness increases -->
               <path class="brow" id="brow" d="M-30,25 C-30,45 30,45 30,25" />
@@ -77,29 +78,34 @@
           </g>
 
 		      <path id="nose" d="M220,190 C210,230 290,230, 280,190" />
-
 		      <path id="smile" d="M70,390 C80,280 420,280 430,390"/>
 	      </g>
       </svg>
     </div>
+
+
+    <label for="level">Level:</label> <input type="range" name="level" min="0"  max="12" />
+    <label for="eyes">Eye Wiggle:</label> <input type="range" name="eyes" min="0"  max="5000" />
+    
   </body>
   <script>
-   /*
-    * SVG curve example
-    *
-    * By Craig Buckler,		https://twitter.com/craigbuckler
-    * of OptimalWorks.net		http://optimalworks.net/
-    * for SitePoint.com		http://sitepoint.com/
-    *
-    * Refer to:
-    * http://www.sitepoint.com/html5-svg-quadratic-curves/
-    * http://www.sitepoint.com/html5-svg-cubic-curves/
-    *
-    * This code can be used without restrictions.
-    */
+   var colors = [
+     "#d30100", // 11
+     "#f37100", // 10
+     "#f37100", // 9
+     "#f2b10f", // 8     
+     "#f2b10f", // 7
+     "#f3f320", // 6
+     "#f3f320", // 5     
+     "#f3f320", // 4    
+     "#908d31", // 3     
+     "#908d31", // 2
+     "#308a45", // 1
+     "#308a45", // 0
+   ];
 
-	 var container, svg, cType, point = {}, smile, brow;
-
+	 var svg, cType, point = {}, smile, brow, face;
+   var pupil;
    var browPoints = {};
    
    var level = 12;
@@ -115,6 +121,13 @@
 
    var movePoints = true;
 
+   var pupilBase = {};
+   var pupilWiggle = 12;
+
+   var max_tween = 1000;
+   var max_wiggle_wait = 5000;
+
+   
    if ( movePoints === true ) {
      controlDiff = controlDiff / 2;
      pointDiff = controlDiff;
@@ -154,45 +167,73 @@
 
      return point;
    };
+
+   var pointToPath = function(point) {
+		 return "M" + point.p1.x + "," + point.p1.y + " " +
+            cType +
+            point.c1.x + "," + point.c1.y + " " +
+            point.c2.x + "," + point.c2.y+" " +
+			      point.p2.x + "," + point.p2.y;
+   };
    
 	 // define initial points
 	 function init() {
      var path;
 
+		 face = svg.getElementById("face");
 		 smile = svg.getElementById("smile");
 		 brow = svg.getElementById("brow");
-
+		 pupil = svg.getElementById("pupil");
+     
      path = smile.getAttributeNS(null, "d");
      base = getCurrentPoints(path);
 
      path = brow.getAttributeNS(null, "d");
      browPoints = getCurrentPoints(path);
+
+     pupilBase.cx = pupil.getAttributeNS(null, "cx");
+     pupilBase.cy = pupil.getAttributeNS(null, "cy");
      
 		 draw(level);
 	 }
 
+   var wiggleEyes = function() {
+     var tween_rate = Math.random() * max_tween;
+     var next_tween = Math.random() * max_wiggle_wait;
+     var start = {
+       cx: pupil.getAttributeNS(null, "cx"),
+       cy: pupil.getAttributeNS(null, "cy")       
+     };
+
+     var end = {
+       cx: pupilBase.cx - pupilWiggle + Math.random() * (pupilWiggle * 2),
+       cy: pupilBase.cy - pupilWiggle + Math.random() * (pupilWiggle * 2)
+     }
+
+     tween = new TWEEN.Tween(start);
+     tween.to(end, tween_rate)
+          .onUpdate(function() {
+            pupil.setAttributeNS(null, "cx", this.cx);
+            pupil.setAttributeNS(null, "cy", this.cy);
+          })
+          .onComplete(function() {
+            setTimeout(wiggleEyes, next_tween);
+          });
+     tween.start();
+   };
+
+
 	 // draw smile
 	 function draw(l) {
-     console.log(l);
-
      var path = smile.getAttributeNS(null, "d");
      var point = getCurrentPoints(path);
 
-     // we move the test control points around, then update the
-     // bezier to match
      point.p1.y = base.p1.y - l * pointDiff;
      point.p2.y = base.p2.y - l * pointDiff;
      point.c1.y = base.c1.y + l * controlDiff;
      point.c2.y = base.c2.y + l * controlDiff;
-
-		 // smile
-		 var d = "M" + point.p1.x + "," + point.p1.y + " " +
-             cType +
-             point.c1.x + "," + point.c1.y + " " +
-             point.c2.x + "," + point.c2.y+" " +
-			       point.p2.x + "," + point.p2.y;
-     
-		 smile.setAttributeNS(null, "d", d);
+    
+		 smile.setAttributeNS(null, "d", pointToPath(point));
 
      // brow
      point = {
@@ -202,27 +243,30 @@
        c2: { x: browPoints.c2.x, y: browPoints.c2.y + l * browControlDiff }
      };
 
-     console.log(point);
-     
-     d = "M" + point.p1.x + "," + point.p1.y + " " +
-         cType +
-         point.c1.x + "," + point.c1.y + " " +
-         point.c2.x + "," + point.c2.y+" " +
-			   point.p2.x + "," + point.p2.y;
-     
-     //console.log(d);
-     brow.setAttributeNS(null, "d", d);
+     brow.setAttributeNS(null, "d", pointToPath(point));
 
-     //<path class="brow" d="M-30,45 C-30,30 30,30 30,45" />
+     var fill = colors[l];
+     face.style.fill = fill;
+
    }
 
 	 // start
 	 document.addEventListener('DOMContentLoaded', function() {
-		 container = document.getElementById("container");
 		 svg = document.getElementById("svg");
 		 init();
+     wiggleEyes();
+     requestAnimationFrame(animate);
 	 });
 
+   document.querySelector('[name=level]').addEventListener('input', function(e) {
+     level = event.target.value;
+     draw(level);
+   });
+   document.querySelector('[name=eyes]').addEventListener('input', function(e) {
+     var v = event.target.value;
+     max_wiggle_wait = 5000 - v;
+   });
+   
    document.addEventListener('keypress', function(e) {
      level = level + dir;
      if ( level > maxLevel ) {
@@ -234,5 +278,11 @@
 
      draw(level);
    });
+
+
+   function animate(time) {
+	   requestAnimationFrame(animate);
+	   TWEEN.update(time);
+   }
   </script>
 </html>
